@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TravelMate AI - 杭州旅行规划</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#72fe88",
+                        "border-subtle": "#E5E5EA",
+                        "surface": "#faf9fe",
+                        "on-primary-fixed": "#001a41",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#00531c",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e9e7ed",
+                        "secondary": "#006e28",
+                        "on-background": "#1a1b1f",
+                        "background": "#faf9fe",
+                        "on-tertiary-fixed": "#351000",
+                        "inverse-on-surface": "#f1f0f5",
+                        "on-tertiary-container": "#fffbff",
+                        "tertiary": "#9e3d00",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#6ffb85",
+                        "surface-container": "#eeedf3",
+                        "on-surface-variant": "#414755",
+                        "inverse-primary": "#adc6ff",
+                        "secondary-fixed-dim": "#53e16f",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f4f3f8",
+                        "on-primary-fixed-variant": "#004493",
+                        "surface-dim": "#dad9df",
+                        "status-error": "#FF3B30",
+                        "primary": "#0058bc",
+                        "outline": "#717786",
+                        "primary-fixed": "#d8e2ff",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#005bc1",
+                        "surface-background": "#FFFFFF",
+                        "surface-canvas": "#F2F2F7",
+                        "on-primary-container": "#fefcff",
+                        "status-warning": "#FF9500",
+                        "on-secondary-container": "#00732a",
+                        "inverse-surface": "#2f3034",
+                        "on-surface": "#1a1b1f",
+                        "primary-container": "#0070eb",
+                        "tertiary-container": "#c64f00",
+                        "outline-variant": "#c1c6d7",
+                        "surface-variant": "#e3e2e7",
+                        "on-tertiary-fixed-variant": "#7c2e00",
+                        "tertiary-fixed": "#ffdbcc",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#faf9fe",
+                        "surface-container-highest": "#e3e2e7",
+                        "tertiary-fixed-dim": "#ffb595",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-secondary-fixed": "#002107"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.5rem",
+                        "margin-desktop": "2rem",
+                        "stack-lg": "1.5rem",
+                        "stack-md": "1rem",
+                        "margin-mobile": "1rem",
+                        "gutter": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "code-sm": ["jetbrainsMono"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "code-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F2F2F7;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tool-panel-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .tool-panel-active .tool-panel-content {
+            max-height: 500px;
+        }
+        .drawer-overlay {
+            background-color: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .drawer-open .drawer-overlay {
+            opacity: 1;
+            visibility: visible;
+        }
+        .drawer-content {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .drawer-open .drawer-content {
+            transform: translateX(0);
+        }
+        @keyframes pulse-custom {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-custom {
+            animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+<!-- Navigation Drawer (Sidebar) -->
+<div class="fixed inset-0 z-[100] drawer-overlay flex" id="navigation-drawer">
+<div class="drawer-content w-72 h-full bg-surface shadow-md flex flex-col py-margin-mobile">
+<div class="px-6 pb-6 border-b border-border-subtle">
+<h2 class="font-headline-lg text-headline-lg font-bold text-primary">TravelMate AI</h2>
+</div>
+<div class="flex-1 overflow-y-auto mt-4 flex flex-col gap-1 px-2">
+<button class="bg-primary-container text-on-primary-container rounded-full px-4 py-3 flex items-center gap-3 transition-all active:scale-95">
+<span class="material-symbols-outlined">add_comment</span>
+<span class="font-body-lg">New Chat</span>
+</button>
+<div class="mt-6 px-4">
+<h3 class="text-label-md font-label-md text-on-surface-variant uppercase mb-2">History</h3>
+<div class="flex flex-col gap-1">
+<button class="flex items-center gap-3 px-4 py-2 hover:bg-surface-container-highest rounded-lg text-on-surface-variant transition-colors text-left">
+<span class="material-symbols-outlined text-xl">history</span>
+<span class="font-body-md truncate">杭州 · 3日游</span>
+</button>
+<button class="flex items-center gap-3 px-4 py-2 hover:bg-surface-container-highest rounded-lg text-on-surface-variant transition-colors text-left">
+<span class="material-symbols-outlined text-xl">history</span>
+<span class="font-body-md truncate">成都 · 2日食记</span>
+</button>
+</div>
+</div>
+<div class="mt-6 px-4">
+<h3 class="text-label-md font-label-md text-on-surface-variant uppercase mb-2">API Configuration</h3>
+<div class="flex flex-col gap-3 px-2 py-3 bg-surface-container-low rounded-xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-label-md text-on-surface">OpenAI GPT-4o</span>
+</div>
+<span class="text-[10px] text-secondary font-bold">READY</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-label-md text-on-surface">Amap Web Services</span>
+</div>
+<span class="text-[10px] text-secondary font-bold">READY</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-label-md text-on-surface">Open-Meteo</span>
+</div>
+<span class="text-[10px] text-secondary font-bold">READY</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto px-2 pt-4 border-t border-border-subtle">
+<button class="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-container-highest rounded-lg text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-lg">Settings</span>
+</button>
+</div>
+</div>
+<!-- Click outside to close -->
+<div class="flex-1" onclick="toggleDrawer()"></div>
+</div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-border-subtle flex items-center justify-between px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-stack-sm">
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors" onclick="toggleDrawer()">
+<span class="material-symbols-outlined text-on-surface-variant">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">TravelMate AI</h1>
+</div>
+<div class="flex items-center gap-stack-sm">
+<div class="flex items-center gap-2 px-3 py-1 bg-secondary-container rounded-full animate-pulse-custom">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-label-md font-label-md text-on-secondary-container">GPS CONNECTED</span>
+</div>
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">history</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex overflow-hidden mt-16 pb-24">
+<!-- Sidebar (Desktop only) -->
+<aside class="hidden md:flex flex-col w-72 h-full bg-surface-container-low border-r border-border-subtle p-margin-mobile gap-stack-lg">
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase mb-stack-sm">Current Trip</h3>
+<div class="bg-surface p-4 rounded-xl shadow-sm border border-border-subtle">
+<p class="font-headline-sm text-headline-sm text-on-surface">杭州 · 3日游</p>
+<p class="font-body-md text-body-md text-on-surface-variant">预算: ¥2,500</p>
+</div>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase mb-stack-sm">Preferences</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-primary-fixed text-on-primary-fixed rounded-full text-label-md font-label-md">美食</span>
+<span class="px-3 py-1 bg-primary-fixed text-on-primary-fixed rounded-full text-label-md font-label-md">拍照</span>
+<span class="px-3 py-1 bg-primary-fixed text-on-primary-fixed rounded-full text-label-md font-label-md">休闲</span>
+</div>
+</div>
+<div class="mt-auto">
+<div class="p-4 bg-tertiary-fixed text-on-tertiary-fixed rounded-xl">
+<p class="font-label-md text-label-md">PRO TIP</p>
+<p class="font-body-md text-body-md">杭帮菜通常偏甜，建议提前预订热门餐厅如“弄堂里”。</p>
+</div>
+</div>
+</aside>
+<!-- Chat Feed -->
+<section class="flex-1 overflow-y-auto px-margin-mobile md:px-margin-desktop py-stack-lg flex flex-col gap-stack-lg max-w-4xl mx-auto w-full">
+<!-- User Message -->
+<div class="flex justify-end">
+<div class="bg-primary text-on-primary p-4 rounded-tl-xl rounded-tr-xl rounded-bl-xl shadow-sm max-w-[85%]">
+<p class="font-body-lg text-body-lg">我从郑州出发，想去杭州玩 3 天，预算 2500 元，喜欢美食、拍照，不想太累，帮我规划一下。</p>
+</div>
+</div>
+<!-- Tool Execution Block -->
+<div class="mx-3 md:mx-6 bg-surface-container-low rounded-xl border border-border-subtle overflow-hidden" id="tool-panel">
+<button class="w-full flex items-center justify-between p-3 hover:bg-surface-container-high transition-colors" onclick="document.getElementById('tool-panel').classList.toggle('tool-panel-active')">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">analytics</span>
+<span class="font-label-md text-label-md text-on-surface">TravelMate AI Agent Processing...</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform duration-300" id="tool-panel-chevron">expand_more</span>
+</button>
+<div class="tool-panel-content p-4 space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm">cloud</span>
+<code class="font-code-sm text-code-sm text-on-surface-variant">searching_hangzhou_weather...</code>
+</div>
+<span class="text-secondary font-label-md text-[10px]">SUCCESS</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm">photo_camera</span>
+<code class="font-code-sm text-code-sm text-on-surface-variant">fetching_poi_photography_spots...</code>
+</div>
+<span class="text-secondary font-label-md text-[10px]">SUCCESS</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm">payments</span>
+<code class="font-code-sm text-code-sm text-on-surface-variant">calculating_budget_allocation...</code>
+</div>
+<span class="text-secondary font-label-md text-[10px]">SUCCESS</span>
+</div>
+</div>
+</div>
+<!-- Assistant Response -->
+<div class="flex justify-start">
+<div class="bg-surface-container-lowest border border-border-subtle p-6 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm max-w-[95%]">
+<!-- Markdown Content -->
+<div class="space-y-stack-lg">
+<h2 class="font-headline-sm text-headline-sm text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">map</span> 【行程概览】
+                    </h2>
+<p class="font-body-lg text-body-lg text-on-surface">
+                        欢迎来到杭州！这份规划平衡了<strong>美食探索</strong>与<strong>绝佳机位</strong>，同时确保节奏从容。2500元的预算完全可以享受一场精致的江南之旅。
+                    </p>
+<div class="p-4 bg-surface-container-high rounded-lg flex items-start gap-3">
+<span class="material-symbols-outlined text-status-warning">wb_sunny</span>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase">天气提醒</h3>
+<p class="font-body-md text-body-md">未来3天杭州多云转晴，气温 18°C-26°C，非常适合西湖边漫步和拍摄日落。</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-stack-sm">
+<div class="relative rounded-xl overflow-hidden aspect-[4/3] group">
+<div class="bg-cover bg-center w-full h-full" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBbNSHN8xQquPOks1SwrLHYHXdR7MUZ1DvN_pehv35BMMCvKcH9GwQOi8Z0EkPfSpUUpFJ2v2FFoPSYXappeOGfV-ZAjIIg4yvTJTcDSOh_O5ufP_QvvHIkIsDZMhRA0wH2VFwkDqEdYY9s76oexkhEGnnl6ys0Oxoew3wTA4BznTzml-IHNQDKajWnpPPKpZ2QCa7E1m7usssWkn_HSfCYMQCtSfOvHwyLAOtOGT7sqVx-Zhfle8ZIkF3CmLgcqsI9OP8e2tOOm_B1')"></div>
+<div class="absolute bottom-0 left-0 right-0 p-2 bg-black/40 backdrop-blur-sm text-white text-[10px] font-label-md">雷峰塔机位</div>
+</div>
+<div class="relative rounded-xl overflow-hidden aspect-[4/3] group">
+<div class="bg-cover bg-center w-full h-full" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA5ZlprfzQYqC_EqY9edTlSBQ9wTDtUNt5VqjEHISYUB-MNSUHfPFLljmD12fUUHo5FIbWAKHWRM9szNTrmfXW8pDczCljZoWFZN3dbKC49DiZBcWa65zyjUmAAMngMXr3q2fIiBeavbU2UjlRk-M8GXQBYZvQo8HwbMJA98j7DaIwPV5Gg_o_5Lhnj5xCjH1xbblAufqPFQfEB-kzNra7_dWiNVUIdX9uKS3tREJL7EKG66quS4v5yui2py5oeVoNBWTuVZLHp3Rlx')"></div>
+<div class="absolute bottom-0 left-0 right-0 p-2 bg-black/40 backdrop-blur-sm text-white text-[10px] font-label-md">龙井虾仁</div>
+</div>
+</div>
+<div class="space-y-stack-md">
+<h2 class="font-headline-sm text-headline-sm text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">calendar_today</span> 【每日行程】
+                        </h2>
+<!-- Day 1 -->
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-sm">1</div>
+<div class="flex-1 w-0.5 bg-border-subtle mt-1"></div>
+</div>
+<div class="pb-stack-lg">
+<h4 class="font-headline-sm text-headline-sm">西湖经典：漫步与断桥</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+                                    上午：抵达杭州东站，入住武林广场附近。下午：漫步北山路（民国建筑群，极佳拍摄点），断桥残雪。晚餐：知味观体验正宗杭帮菜。
+                                </p>
+</div>
+</div>
+<!-- Day 2 -->
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-sm">2</div>
+<div class="flex-1 w-0.5 bg-border-subtle mt-1"></div>
+</div>
+<div class="pb-stack-lg">
+<h4 class="font-headline-sm text-headline-sm">禅意灵隐：祈福与茶园</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+                                    上午：前往灵隐寺（法喜寺是网红机位）。中午：在天竺路享受素斋。下午：龙井草堂看茶园景观，适合拍人像。
+                                </p>
+</div>
+</div>
+<!-- Day 3 -->
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-sm">3</div>
+</div>
+<div class="">
+<h4 class="font-headline-sm text-headline-sm">运河古韵：拱宸桥</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+                                    上午：大运河景区，参观博物馆。中午：桥西直街觅食。下午：慢悠悠逛文创店，随后准备启程返回。
+                                </p>
+</div>
+</div>
+</div>
+<div class="pt-stack-md border-t border-border-subtle flex items-center justify-between">
+<span class="text-label-md font-label-md text-on-surface-variant">ESTIMATED COST: ¥2,150</span>
+<button class="text-primary font-label-md flex items-center gap-1 hover:underline" onclick="showSaveSuccess()">
+<span class="material-symbols-outlined text-sm">save</span> 保存行程
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Typing indicator -->
+<div class="flex justify-start opacity-0 transition-opacity duration-500" id="typing-indicator">
+<div class="bg-surface-container-lowest border border-border-subtle px-4 py-2 rounded-full flex items-center gap-2">
+<div class="flex gap-1">
+<span class="w-1.5 h-1.5 bg-on-surface-variant/40 rounded-full animate-bounce" style="animation-delay: 0s"></span>
+<span class="w-1.5 h-1.5 bg-on-surface-variant/40 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+<span class="w-1.5 h-1.5 bg-on-surface-variant/40 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+</div>
+<span class="text-label-md text-on-surface-variant">TravelMate AI is thinking...</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Input Container -->
+<footer class="fixed bottom-0 w-full bg-surface-canvas/80 backdrop-blur-md p-margin-mobile md:px-margin-desktop z-40">
+<div class="max-w-4xl mx-auto">
+<div class="relative flex items-end gap-stack-sm bg-surface-container-lowest border border-border-subtle rounded-2xl p-2 shadow-lg ring-1 ring-black/5 focus-within:ring-primary/20 transition-all">
+<button class="p-2 hover:bg-surface-container-high rounded-xl text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 py-2 font-body-lg text-body-lg resize-none min-h-[44px] max-h-32" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" placeholder="问问更多细节，例如：推荐几家当地的面馆？" rows="1"></textarea>
+<div class="flex items-center gap-stack-sm pb-1 px-1">
+<button class="p-2 hover:bg-surface-container-high rounded-xl text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">mic</span>
+</button>
+<button class="w-10 h-10 bg-primary text-on-primary rounded-xl flex items-center justify-center hover:bg-primary-container active:scale-95 transition-all">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+<div class="flex justify-center mt-2">
+<p class="text-[10px] text-on-surface-variant/60 font-label-md">TravelMate AI can make mistakes. Verify important info.</p>
+</div>
+</div>
+</footer>
+<!-- Save Success Feedback (Toast/Overlay) -->
+<div class="fixed inset-0 z-[110] flex items-center justify-center p-6 pointer-events-none opacity-0 transition-all duration-300 transform scale-95" id="save-feedback">
+<div class="bg-surface-container-lowest border border-border-subtle shadow-2xl rounded-2xl p-6 max-w-sm w-full pointer-events-auto">
+<div class="flex flex-col items-center text-center gap-4">
+<div class="w-16 h-16 bg-secondary-container text-secondary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl">check_circle</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Save Successful</h3>
+<p class="font-body-md text-on-surface-variant mt-1">Your travel itinerary has been exported.</p>
+</div>
+<div class="w-full bg-surface-container-low p-3 rounded-lg border border-border-subtle flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">description</span>
+<div class="text-left overflow-hidden">
+<p class="text-label-md font-bold text-on-surface truncate">itinerary.md</p>
+<p class="text-[10px] text-on-surface-variant truncate">/storage/outputs/hangzhou_3d.md</p>
+</div>
+</div>
+<div class="flex gap-3 w-full">
+<button class="flex-1 py-3 px-4 border border-border-subtle rounded-xl font-label-md text-on-surface hover:bg-surface-container-high transition-colors" onclick="hideSaveSuccess()">Close</button>
+<button class="flex-1 py-3 px-4 bg-primary text-on-primary rounded-xl font-label-md hover:bg-primary-container transition-all active:scale-95">Open File</button>
+</div>
+</div>
+</div>
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-black/20 -z-10" onclick="hideSaveSuccess()"></div>
+</div>
+<script>
+    // Navigation Drawer Logic
+    function toggleDrawer() {
+        document.body.classList.toggle('drawer-open');
+    }
+
+    // Save Success Feedback Logic
+    function showSaveSuccess() {
+        const feedback = document.getElementById('save-feedback');
+        feedback.classList.remove('pointer-events-none', 'opacity-0', 'scale-95');
+        feedback.classList.add('opacity-100', 'scale-100');
+    }
+
+    function hideSaveSuccess() {
+        const feedback = document.getElementById('save-feedback');
+        feedback.classList.add('pointer-events-none', 'opacity-0', 'scale-95');
+        feedback.classList.remove('opacity-100', 'scale-100');
+    }
+
+    // Input field interaction
+    const textarea = document.querySelector('textarea');
+    textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const val = textarea.value;
+            if (!val.trim()) return;
+            
+            textarea.value = '';
+            textarea.style.height = '44px';
+            const indicator = document.getElementById('typing-indicator');
+            indicator.classList.remove('opacity-0');
+            
+            // Simulate AI thinking and response
+            setTimeout(() => {
+                indicator.classList.add('opacity-0');
+            }, 3000);
+        }
+    });
+
+    // Tool panel chevron rotation
+    const toolPanelBtn = document.querySelector('#tool-panel button');
+    const chevron = document.getElementById('tool-panel-chevron');
+    toolPanelBtn.addEventListener('click', () => {
+        const isActive = document.getElementById('tool-panel').classList.contains('tool-panel-active');
+        chevron.style.transform = isActive ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
+
+    // Initialize UI states
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.getElementById('tool-panel').classList.add('tool-panel-active');
+            chevron.style.transform = 'rotate(180deg)';
+        }, 1000);
+    });
+</script>
+</body></html>

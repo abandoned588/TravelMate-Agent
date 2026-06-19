@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.streamlit/
+.venv/
+venv/
+storage/logs/tool_trace.jsonl
+storage/outputs/itinerary.md
+storage/cache/*.json
+
